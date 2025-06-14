@@ -1,6 +1,6 @@
 # Britescript Site
 
-The official Britescript documentation and playground site built with React, TypeScript, Vite, and Mantine.
+The official Britescript documentation and playground site built with React, Britescript, Vite, and Mantine.
 
 ## Development
 
