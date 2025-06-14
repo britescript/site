@@ -1,0 +1,179 @@
+import React from 'react'
+import { Container, Title, Text, Stack, Card, Grid, Code, Anchor } from '@mantine/core'
+import { CodeHighlight } from '@mantine/code-highlight'
+
+// Reference examples using string concatenation to avoid transformation
+const structs = "str" + "uct User {\n  id: number;\n  name: string;\n}\n\nstr" + "uct Point<T> {\n  x: T;\n  y: T;\n}";
+const structsOutput = "type User = { id: number; name: string; }\ntype Point<T> = { x: T; y: T; }";
+
+const traits = "tr" + "ait Display {\n  show(): string;\n}\n\ntr" + "ait Serialize<T> {\n  serialize(): T;\n}";
+const traitsOutput = "interface Display { show(): string; }\ninterface Serialize<T> { serialize(): T; }";
+
+const impls = "im" + "pl Display for User {\n  show() {\n    return this.name;\n  }\n}";
+const implsOutput = "const UserDisplay = {\n  show: (obj: User): string => {\n    return obj.name;\n  }\n};";
+
+
+const pipes = "value " + "|" + "> trim " + "|" + "> toUpperCase " + "|" + "> console.log";
+const pipesOutput = "console.log(value.trim().toUpperCase());";
+
+export default function Docs() {
+  return (
+    <Container size="lg">
+      <Stack gap="xl">
+        <div>
+          <Title order={1} mb="md">Documentation</Title>
+          <Text size="lg" c="dimmed">
+            Britescript is a language that compiles to TypeScript, featuring functional programming 
+            constructs while maintaining full compatibility with existing JavaScript/TypeScript code.
+          </Text>
+        </div>
+
+        <Grid>
+          <Grid.Col span={{ base: 12, md: 8 }}>
+            <Stack gap="xl">
+              {/* Structs */}
+              <div>
+                <Title order={2} mb="md" id="structs">
+                  <Anchor href="#structs" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Structs
+                  </Anchor>
+                </Title>
+                <Text mb="md">
+                  Define data structures that compile to TypeScript type definitions.
+                </Text>
+                <Grid>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="javascript" code={structs} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="typescript" code={structsOutput} />
+                  </Grid.Col>
+                </Grid>
+              </div>
+
+              {/* Traits */}
+              <div>
+                <Title order={2} mb="md" id="traits">
+                  <Anchor href="#traits" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Traits
+                  </Anchor>
+                </Title>
+                <Text mb="md">
+                  Define interfaces that can be implemented by structs.
+                </Text>
+                <Grid>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="javascript" code={traits} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="typescript" code={traitsOutput} />
+                  </Grid.Col>
+                </Grid>
+              </div>
+
+              {/* Implementations */}
+              <div>
+                <Title order={2} mb="md" id="implementations">
+                  <Anchor href="#implementations" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Implementations
+                  </Anchor>
+                </Title>
+                <Text mb="md">
+                  Implement traits for structs using functional objects.
+                </Text>
+                <Grid>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="javascript" code={impls} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="typescript" code={implsOutput} />
+                  </Grid.Col>
+                </Grid>
+              </div>
+
+
+              {/* Pipes */}
+              <div>
+                <Title order={2} mb="md" id="pipes">
+                  <Anchor href="#pipes" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Pipe Expressions
+                  </Anchor>
+                </Title>
+                <Text mb="md">
+                  Chain function calls with the pipe operator.
+                </Text>
+                <Grid>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="javascript" code={pipes} />
+                  </Grid.Col>
+                  <Grid.Col span={6}>
+                    <CodeHighlight language="typescript" code={pipesOutput} />
+                  </Grid.Col>
+                </Grid>
+              </div>
+
+              {/* Installation */}
+              <div>
+                <Title order={2} mb="md" id="installation">
+                  <Anchor href="#installation" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Installation
+                  </Anchor>
+                </Title>
+                <CodeHighlight 
+                  language="bash" 
+                  code="bun install -g @britescript/cli" 
+                />
+              </div>
+
+              {/* Usage */}
+              <div>
+                <Title order={2} mb="md" id="usage">
+                  <Anchor href="#usage" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    Usage
+                  </Anchor>
+                </Title>
+                <CodeHighlight 
+                  language="bash" 
+                  code={`# Create a new project
+brite init my-app
+cd my-app
+
+# Compile a file
+brite compile main.bs
+
+# Watch and recompile on changes
+brite compile main.bs --watch
+
+# Run Britescript directly
+brite run main.bs
+
+# Start interactive REPL
+brite repl
+
+# Show all available commands
+brite help`}
+                />
+              </div>
+            </Stack>
+          </Grid.Col>
+
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card withBorder>
+              <Card.Section p="md">
+                <Title order={3} mb="md">Table of Contents</Title>
+                <Stack gap="xs">
+                  <Anchor href="#structs" size="sm">Structs</Anchor>
+                  <Anchor href="#traits" size="sm">Traits</Anchor>
+                  <Anchor href="#implementations" size="sm">Implementations</Anchor>
+                  <Anchor href="#pipes" size="sm">Pipe Expressions</Anchor>
+                  <Anchor href="#installation" size="sm">Installation</Anchor>
+                  <Anchor href="#usage" size="sm">Usage</Anchor>
+                </Stack>
+              </Card.Section>
+            </Card>
+          </Grid.Col>
+        </Grid>
+      </Stack>
+    </Container>
+  )
+}

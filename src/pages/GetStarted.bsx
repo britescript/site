@@ -1,0 +1,216 @@
+import React from 'react'
+import { Container, Title, Text, Stack, Card, Grid, Code } from '@mantine/core'
+import { CodeHighlight } from '@mantine/code-highlight'
+
+// Code examples using string concatenation to avoid Britescript transformation
+const structExample = "str" + "uct User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nstr" + "uct Container<T> {\n  value: T;\n}";
+
+const structOutput = "type User = {\n  id: number;\n  name: string;\n  email: string;\n}\n\ntype Container<T> = {\n  value: T;\n}";
+
+const traitExample = "tr" + "ait Display {\n  show(): string;\n}\n\ntr" + "ait Container<T> {\n  get(): T;\n  set(value: T): void;\n}";
+
+const traitOutput = "interface Display {\n  show(): string;\n}\n\ninterface Container<T> {\n  get(): T;\n  set(value: T): void;\n}";
+
+const implExample = "tr" + "ait Display {\n  show(): string;\n}\n\nstr" + "uct User {\n  id: number;\n  name: string;\n}\n\nim" + "pl Display for User {\n  show() {\n    return `User #${this.id}: ${this.name}`;\n  }\n}";
+
+const implOutput = "interface Display {\n  show(): string;\n}\n\ntype User = {\n  id: number;\n  name: string;\n}\n\nconst UserDisplay = {\n  show: (obj: User): string => {\n    return \"Hello \" + obj.name;\n  }\n};";
+
+
+const pipeExample = "l" + "et message = \"  hello world  \"\nmessage " + "|" + "> trim " + "|" + "> toUpperCase " + "|" + "> console.log\n\n// Multi-line pipes\nl" + "et announcement = \"  britescript is awesome  \"\nannouncement \n  " + "|" + "> trim \n  " + "|" + "> toUpperCase \n  " + "|" + "> console.log";
+
+const pipeOutput = "const message = \"  hello world  \";\nconsole.log(message.trim().toUpperCase());\n\n// Multi-line pipes\nconst announcement = \"  britescript is awesome  \";\nconsole.log(announcement.trim().toUpperCase());";
+
+const mixedExample = "// Regular TypeScript/JavaScript\nfunction createUser(name: string, email: string): User {\n  return {\n    id: Date.now(),\n    name,\n    email,\n  };\n}\n\n// Britescript tr" + "aits and str" + "ucts\ntr" + "ait Display {\n  show(): string;\n}\n\nstr" + "uct User {\n  id: number;\n  name: string;\n  email: string;\n}\n\nim" + "pl Display for User {\n  show() {\n    return `User: ${this.name} (${this.email})`;\n  }\n}\n\n// Mixed usage with pipes\nconst users: User[] = [\n  createUser(\"Alice\", \"alice@example.com\"),\n  createUser(\"Bob\", \"bob@example.com\"),\n];\n\nl" + "et message = \"Processing users...\"\nmessage " + "|" + "> console.log\n\nusers.forEach(user => {\n  user.show() " + "|" + "> console.log;\n});";
+
+export default function GetStarted() {
+  return (
+    <Container size="lg">
+      <Stack gap="xl">
+        <Title order={1}>Get Started</Title>
+        
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Installation</Title>
+            <Text mb="md">
+              Britescript is a modern language that compiles to TypeScript. It supports both 
+              Britescript-specific syntax and regular TypeScript/JavaScript code in the same file.
+            </Text>
+            
+            <Title order={3} mb="sm">Install the CLI</Title>
+            <CodeHighlight 
+              language="bash" 
+              code="bun install -g @britescript/cli"
+            />
+            
+            <Title order={3} mb="sm" mt="md">Using the CLI</Title>
+            <CodeHighlight 
+              language="bash" 
+              code={`# Create a new project
+brite init my-app
+cd my-app
+
+# Compile a file
+brite compile main.bs
+
+# Watch and recompile on changes
+brite compile main.bs --watch
+
+# Run Britescript directly
+brite run main.bs
+
+# Start interactive REPL
+brite repl
+
+# Show all available commands
+brite help`}
+            />
+            
+            <Title order={3} mb="sm" mt="md">Vite Plugin Setup</Title>
+            <Text mb="sm">For Vite projects, install the plugin:</Text>
+            <CodeHighlight 
+              language="bash" 
+              code="bun add -D @britescript/vite"
+            />
+            
+            <Text mb="sm" mt="md">Configure your vite.config.ts:</Text>
+            <CodeHighlight 
+              language="typescript" 
+              code={`import { defineConfig } from 'vite'
+import { britescript } from '@britescript/vite'
+
+export default defineConfig({
+  plugins: [
+    britescript({
+      jsx: true, // Enable JSX support for .bsx files
+    }),
+    // ... other plugins
+  ],
+  resolve: {
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.bsx', '.bs']
+  }
+})`}
+            />
+            
+            <Text mt="md">
+              Now you can import .bs and .bsx files directly in your Vite project!
+            </Text>
+          </Card.Section>
+        </Card>
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Struct Declarations</Title>
+            <Text mb="md">
+              Define data structures with clean syntax that compiles to TypeScript types:
+            </Text>
+            <Grid>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Britescript</Text>
+                <CodeHighlight
+                  language="javascript"
+                  code={structExample}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Generated TypeScript</Text>
+                <CodeHighlight
+                  language="typescript"
+                  code={structOutput}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card.Section>
+        </Card>
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Traits</Title>
+            <Text mb="md">
+              Define interfaces with trait declarations that compile to TypeScript interfaces:
+            </Text>
+            <Grid>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Britescript</Text>
+                <CodeHighlight
+                  language="javascript"
+                  code={traitExample}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Generated TypeScript</Text>
+                <CodeHighlight
+                  language="typescript"
+                  code={traitOutput}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card.Section>
+        </Card>
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Trait Implementations</Title>
+            <Text mb="md">
+              Implement traits for your structs with functional object generation:
+            </Text>
+            <Grid>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Britescript</Text>
+                <CodeHighlight
+                  language="javascript"
+                  code={implExample}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Generated TypeScript</Text>
+                <CodeHighlight
+                  language="typescript"
+                  code={implOutput}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card.Section>
+        </Card>
+
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Pipe Expressions</Title>
+            <Text mb="md">
+              Chain function calls with the pipe operator:
+            </Text>
+            <Grid>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Britescript</Text>
+                <CodeHighlight
+                  language="javascript"
+                  code={pipeExample}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Generated TypeScript</Text>
+                <CodeHighlight
+                  language="typescript"
+                  code={pipeOutput}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card.Section>
+        </Card>
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={2} mb="md">Mixed Code</Title>
+            <Text mb="md">
+              Use regular JavaScript/TypeScript alongside Britescript:
+            </Text>
+            <CodeHighlight
+              language="typescript"
+              code={mixedExample}
+            />
+          </Card.Section>
+        </Card>
+      </Stack>
+    </Container>
+  )
+}

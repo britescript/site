@@ -1,0 +1,89 @@
+import React from 'react'
+import { Container, Title, Text, Button, Group, Grid, Card, Stack } from '@mantine/core'
+import { CodeHighlight } from '@mantine/code-highlight'
+import { Link } from '@tanstack/react-router'
+
+// Code examples using string concatenation to avoid Britescript transformation
+const homeExample = "tr" + "ait Display {\n  show(): string;\n}\n\nstr" + "uct User {\n  id: number;\n  name: string;\n}\n\nim" + "pl Display for User {\n  show() {\n    return `User #${this.id}: ${this.name}`;\n  }\n}\n\nl" + "et message = \"Hello from Britescript\"\nmessage " + "|" + "> console.log";
+
+const homeOutput = "interface Display {\n  show(): string;\n}\n\ntype User = {\n  id: number;\n  name: string;\n}\n\nconst UserDisplay = {\n  show: (obj: User): string => {\n    return \"Hello \" + obj.name;\n  }\n};\n\nconst message = \"Hello from Britescript\";\nconsole.log(message);";
+
+export default function Home() {
+  return (
+    <Container size="lg">
+      <Stack gap="xl">
+        <Stack gap="md" align="center" ta="center">
+          <Title order={1} size="3.5rem" c="blue">
+            Britescript
+          </Title>
+          <Text size="xl" c="dimmed">
+            A modern language that compiles to TypeScript
+          </Text>
+          <Group>
+            <Link to="/get-started">
+              <Button size="lg">Get Started</Button>
+            </Link>
+            <Link to="/docs">
+              <Button size="lg" variant="outline">View Docs</Button>
+            </Link>
+          </Group>
+        </Stack>
+
+        <Grid>
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card withBorder h="100%" ta="center">
+              <Card.Section p="md">
+                <Title order={3} mb="sm">Traits & Structs</Title>
+                <Text c="dimmed">
+                  Define types with traits and implement them using functional objects
+                </Text>
+              </Card.Section>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card withBorder h="100%" ta="center">
+              <Card.Section p="md">
+                <Title order={3} mb="sm">TypeScript Compatible</Title>
+                <Text c="dimmed">
+                  Compiles directly to TypeScript with full type safety
+                </Text>
+              </Card.Section>
+            </Card>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <Card withBorder h="100%" ta="center">
+              <Card.Section p="md">
+                <Title order={3} mb="sm">Mixed Code</Title>
+                <Text c="dimmed">
+                  Use Britescript and JavaScript/TypeScript in the same file
+                </Text>
+              </Card.Section>
+            </Card>
+          </Grid.Col>
+        </Grid>
+
+        <Card withBorder>
+          <Card.Section p="md">
+            <Title order={3} mb="md">Quick Example</Title>
+            <Grid>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Britescript</Text>
+                <CodeHighlight
+                  language="javascript"
+                  code={homeExample}
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Text fw={500} mb="sm">Generated TypeScript</Text>
+                <CodeHighlight
+                  language="typescript"
+                  code={homeOutput}
+                />
+              </Grid.Col>
+            </Grid>
+          </Card.Section>
+        </Card>
+      </Stack>
+    </Container>
+  )
+}

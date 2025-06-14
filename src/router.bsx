@@ -1,0 +1,74 @@
+import { createRouter, createRoute, createRootRoute, Link, Outlet } from '@tanstack/react-router'
+import { AppShell, Group, Text, Anchor } from '@mantine/core'
+import Home from './pages/Home'
+import Docs from './pages/Docs'
+import GetStarted from './pages/GetStarted'
+
+const rootRoute = createRootRoute({
+  component: () => {
+    return (
+      <AppShell
+        header={{ height: 60 }}
+        padding="md"
+      >
+        <AppShell.Header>
+          <Group h="100%" px="md" justify="space-between">
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <Text size="xl" fw={700} c="blue">
+                Britescript
+              </Text>
+            </Link>
+            <Group gap="lg">
+              <Link to="/" style={{ textDecoration: 'none' }}>
+                <Anchor component="span" size="sm">
+                  Home
+                </Anchor>
+              </Link>
+              <Link to="/get-started" style={{ textDecoration: 'none' }}>
+                <Anchor component="span" size="sm">
+                  Get Started
+                </Anchor>
+              </Link>
+              <Link to="/docs" style={{ textDecoration: 'none' }}>
+                <Anchor component="span" size="sm">
+                  Docs
+                </Anchor>
+              </Link>
+            </Group>
+          </Group>
+        </AppShell.Header>
+        <AppShell.Main>
+          <Outlet />
+        </AppShell.Main>
+      </AppShell>
+    )
+  },
+})
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Home,
+})
+
+const getStartedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/get-started',
+  component: GetStarted,
+})
+
+const docsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/docs',
+  component: Docs,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, getStartedRoute, docsRoute])
+
+export const router = createRouter({ routeTree })
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
