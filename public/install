@@ -1,0 +1,382 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Britescript Installer
+# Usage: curl -fsSL https://britescript.com/install | bash
+
+# Colors
+RESET="\033[0m"
+BOLD="\033[1m"
+RED="\033[31m"
+GREEN="\033[32m"
+YELLOW="\033[33m"
+BLUE="\033[34m"
+MAGENTA="\033[35m"
+CYAN="\033[36m"
+
+# Britescript ASCII art
+print_logo() {
+  echo -e "${BOLD}${BLUE}"
+  echo "  ____       _ _                      _       _   "
+  echo " | __ ) _ __(_) |_ ___  ___  ___ _ __(_)_ __ | |_ "
+  echo " |  _ \\| '__| | __/ _ \\/ __|/ __| '__| | '_ \\| __|"
+  echo " | |_) | |  | | ||  __/\\__ \\ (__| |  | | |_) | |_ "
+  echo " |____/|_|  |_|\\__\\___||___/\\___|_|  |_| .__/ \\__|"
+  echo "                                       |_|        "
+  echo -e "${RESET}"
+  echo -e "${CYAN}A language that compiles to TypeScript with traits, structs, and pipes${RESET}"
+  echo ""
+}
+
+# Check if a command exists
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+# Get the latest version from GitHub
+get_latest_version() {
+  curl -s https://api.github.com/repos/britescript/britescript/releases/latest | 
+    grep '"tag_name":' | 
+    sed -E 's/.*"v([^"]+)".*/\1/'
+}
+
+# Detect platform
+detect_platform() {
+  local platform="unknown"
+  local machine=$(uname -m)
+  
+  case $(uname -s) in
+    Darwin)
+      platform="macos"
+      ;;
+    Linux)
+      platform="linux"
+      ;;
+    *)
+      echo -e "${RED}Unsupported platform: $(uname -s)${RESET}"
+      echo -e "${YELLOW}Britescript currently supports macOS and Linux.${RESET}"
+      exit 1
+      ;;
+  esac
+  
+  # Normalize architecture
+  local arch="unknown"
+  case $machine in
+    x86_64|amd64)
+      arch="amd64"
+      ;;
+    arm64|aarch64)
+      arch="arm64"
+      ;;
+    armv7l|armv7)
+      # Some Linux ARM devices
+      echo -e "${YELLOW}ARM 32-bit detected. Using ARM 64-bit build as fallback.${RESET}"
+      arch="arm64"
+      ;;
+    i386|i686)
+      # 32-bit x86
+      echo -e "${YELLOW}x86 32-bit detected. Using x86_64 build as fallback.${RESET}"
+      arch="amd64"
+      ;;
+    *)
+      echo -e "${RED}Unsupported architecture: $machine${RESET}"
+      echo -e "${YELLOW}Please report this issue at https://github.com/britescript/britescript/issues${RESET}"
+      exit 1
+      ;;
+  esac
+  
+  echo "$platform-$arch"
+}
+
+# Install Britescript
+install_britescript() {
+  local version=$1
+  local platform=$2
+  local install_dir=$3
+  
+  echo -e "${BLUE}Installing Britescript v${version} for ${platform}...${RESET}"
+  
+  # Create temporary directory
+  local tmp_dir=$(mktemp -d)
+  trap 'rm -rf "$tmp_dir"' EXIT
+  
+  # Download the tarball
+  local platform_base="${platform%%-*}" # Extract just macos or linux
+  local tarball_url="https://github.com/britescript/britescript/releases/download/v${version}/britescript-${version}-${platform_base}.tar.gz"
+  echo -e "${YELLOW}Downloading from ${tarball_url}...${RESET}"
+  
+  # Try to download with progress bar if possible
+  if command_exists curl; then
+    curl -fSL --progress-bar "$tarball_url" -o "$tmp_dir/britescript.tar.gz" || {
+      echo -e "${RED}Failed to download Britescript.${RESET}"
+      echo -e "${YELLOW}Please check your internet connection and try again.${RESET}"
+      echo -e "${YELLOW}If the problem persists, please report it at https://github.com/britescript/britescript/issues${RESET}"
+      exit 1
+    }
+  else
+    # Fallback to wget if curl is not available
+    if command_exists wget; then
+      wget -q --show-progress "$tarball_url" -O "$tmp_dir/britescript.tar.gz" || {
+        echo -e "${RED}Failed to download Britescript.${RESET}"
+        echo -e "${YELLOW}Please check your internet connection and try again.${RESET}"
+        exit 1
+      }
+    else
+      echo -e "${RED}Neither curl nor wget found. Please install one of them and try again.${RESET}"
+      exit 1
+    fi
+  fi
+  
+  # Verify the download
+  if [ ! -s "$tmp_dir/britescript.tar.gz" ]; then
+    echo -e "${RED}Downloaded file is empty or does not exist.${RESET}"
+    echo -e "${YELLOW}This could be due to a network issue or the release may not be available yet.${RESET}"
+    exit 1
+  }
+  
+  # Extract the tarball
+  echo -e "${YELLOW}Extracting...${RESET}"
+  mkdir -p "$tmp_dir/extract"
+  tar -xzf "$tmp_dir/britescript.tar.gz" -C "$tmp_dir/extract" || {
+    echo -e "${RED}Failed to extract the tarball.${RESET}"
+    echo -e "${YELLOW}The downloaded file may be corrupted. Please try again.${RESET}"
+    exit 1
+  }
+  
+  # Create installation directory
+  mkdir -p "$install_dir/bin" || {
+    echo -e "${RED}Failed to create installation directory: $install_dir/bin${RESET}"
+    echo -e "${YELLOW}Please check your permissions and try again.${RESET}"
+    exit 1
+  }
+  
+  # Find the brite executable in the extracted files
+  local brite_path=$(find "$tmp_dir/extract" -name "brite" -type f)
+  
+  if [ -z "$brite_path" ]; then
+    echo -e "${RED}Could not find the 'brite' executable in the downloaded package.${RESET}"
+    echo -e "${YELLOW}The package structure may have changed. Please report this issue.${RESET}"
+    exit 1
+  fi
+  
+  # Copy the executable
+  cp "$brite_path" "$install_dir/bin/brite" || {
+    echo -e "${RED}Failed to copy the executable to $install_dir/bin${RESET}"
+    echo -e "${YELLOW}Please check your permissions and try again.${RESET}"
+    exit 1
+  }
+  
+  # Make it executable
+  chmod +x "$install_dir/bin/brite" || {
+    echo -e "${RED}Failed to make the executable file executable.${RESET}"
+    echo -e "${YELLOW}Please check your permissions and try again.${RESET}"
+    exit 1
+  }
+  
+  # Copy any additional files if they exist
+  if [ -d "$tmp_dir/extract/lib" ]; then
+    mkdir -p "$install_dir/lib"
+    cp -R "$tmp_dir/extract/lib/"* "$install_dir/lib/" 2>/dev/null || true
+  fi
+  
+  # Copy documentation if it exists
+  if [ -f "$tmp_dir/extract/README.md" ]; then
+    cp "$tmp_dir/extract/README.md" "$install_dir/" 2>/dev/null || true
+  fi
+  if [ -f "$tmp_dir/extract/LICENSE" ]; then
+    cp "$tmp_dir/extract/LICENSE" "$install_dir/" 2>/dev/null || true
+  }
+  
+  echo -e "${GREEN}Britescript has been installed successfully!${RESET}"
+}
+
+# Check if Bun is installed
+check_bun() {
+  if ! command_exists bun; then
+    echo -e "${YELLOW}Britescript requires Bun to run.${RESET}"
+    echo -e "${YELLOW}Would you like to install Bun now? (y/n)${RESET}"
+    read -r install_bun
+    
+    if [[ "$install_bun" =~ ^[Yy]$ ]]; then
+      echo -e "${BLUE}Installing Bun...${RESET}"
+      
+      # Check if we have curl or wget
+      if command_exists curl; then
+        curl -fsSL https://bun.sh/install | bash
+      elif command_exists wget; then
+        wget -qO- https://bun.sh/install | bash
+      else
+        echo -e "${RED}Neither curl nor wget found. Please install Bun manually from https://bun.sh${RESET}"
+        exit 1
+      fi
+      
+      # Source the shell profile to make bun available in the current session
+      local shell_profile=""
+      if [[ -n "$ZSH_VERSION" ]]; then
+        shell_profile="$HOME/.zshrc"
+      elif [[ -n "$BASH_VERSION" ]]; then
+        shell_profile="$HOME/.bashrc"
+        [[ "$(uname -s)" == "Darwin" ]] && shell_profile="$HOME/.bash_profile"
+      else
+        shell_profile="$HOME/.profile"
+      fi
+      
+      if [[ -f "$shell_profile" ]]; then
+        echo -e "${BLUE}Sourcing $shell_profile to make Bun available...${RESET}"
+        # shellcheck disable=SC1090
+        source "$shell_profile" 2>/dev/null || true
+      fi
+      
+      # Check if bun is now in PATH
+      if ! command_exists bun; then
+        echo -e "${YELLOW}Bun was installed but is not available in the current session.${RESET}"
+        echo -e "${YELLOW}Please restart your terminal or run 'source $shell_profile' to use Bun.${RESET}"
+        echo -e "${YELLOW}After that, you can run Britescript with 'brite'.${RESET}"
+      else
+        echo -e "${GREEN}Bun was successfully installed!${RESET}"
+      fi
+    else
+      echo -e "${YELLOW}Please install Bun manually from https://bun.sh before using Britescript.${RESET}"
+      echo -e "${YELLOW}After installing Bun, you can run Britescript with 'brite'.${RESET}"
+      exit 1
+    fi
+  else
+    echo -e "${GREEN}Bun is already installed. Great!${RESET}"
+  fi
+}
+
+# Add to PATH if needed
+add_to_path() {
+  local install_dir=$1
+  local bin_dir="$install_dir/bin"
+  
+  # Check if the bin directory is already in PATH
+  if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
+    echo -e "${YELLOW}Adding $bin_dir to your PATH...${RESET}"
+    
+    # Determine shell configuration file
+    local shell_profile=""
+    if [[ -n "$ZSH_VERSION" ]]; then
+      shell_profile="$HOME/.zshrc"
+    elif [[ -n "$BASH_VERSION" ]]; then
+      shell_profile="$HOME/.bashrc"
+      [[ "$(uname -s)" == "Darwin" ]] && shell_profile="$HOME/.bash_profile"
+    else
+      # Try to detect the shell from /etc/passwd
+      local shell_name
+      shell_name=$(basename "$(grep "^$USER:" /etc/passwd | cut -d: -f7)" 2>/dev/null)
+      
+      case "$shell_name" in
+        zsh)
+          shell_profile="$HOME/.zshrc"
+          ;;
+        bash)
+          shell_profile="$HOME/.bashrc"
+          [[ "$(uname -s)" == "Darwin" ]] && shell_profile="$HOME/.bash_profile"
+          ;;
+        *)
+          shell_profile="$HOME/.profile"
+          ;;
+      esac
+    fi
+    
+    # Add to PATH in the appropriate shell configuration file
+    if [[ -f "$shell_profile" ]]; then
+      # Check if the PATH entry already exists
+      if ! grep -q "export PATH=\"$bin_dir:\$PATH\"" "$shell_profile"; then
+        echo "" >> "$shell_profile"
+        echo "# Added by Britescript installer" >> "$shell_profile"
+        echo "export PATH=\"$bin_dir:\$PATH\"" >> "$shell_profile"
+        echo -e "${GREEN}Added to $shell_profile. Please restart your terminal or run 'source $shell_profile'.${RESET}"
+      else
+        echo -e "${GREEN}PATH entry already exists in $shell_profile.${RESET}"
+      fi
+    else
+      # Create the shell profile if it doesn't exist
+      echo -e "${YELLOW}Creating $shell_profile...${RESET}"
+      echo "# Created by Britescript installer" > "$shell_profile"
+      echo "export PATH=\"$bin_dir:\$PATH\"" >> "$shell_profile"
+      echo -e "${GREEN}Created $shell_profile with PATH entry.${RESET}"
+      echo -e "${YELLOW}Please restart your terminal or run 'source $shell_profile'.${RESET}"
+    fi
+    
+    # Also add to .profile for login shells if it's not the same as the detected profile
+    if [[ "$shell_profile" != "$HOME/.profile" && -f "$HOME/.profile" ]]; then
+      if ! grep -q "export PATH=\"$bin_dir:\$PATH\"" "$HOME/.profile"; then
+        echo "" >> "$HOME/.profile"
+        echo "# Added by Britescript installer" >> "$HOME/.profile"
+        echo "export PATH=\"$bin_dir:\$PATH\"" >> "$HOME/.profile"
+        echo -e "${GREEN}Also added to $HOME/.profile for login shells.${RESET}"
+      fi
+    fi
+    
+    # Create a symlink in /usr/local/bin if possible (requires sudo)
+    if [[ -d "/usr/local/bin" && -w "/usr/local/bin" ]]; then
+      echo -e "${YELLOW}Creating symlink in /usr/local/bin for system-wide access...${RESET}"
+      ln -sf "$bin_dir/brite" "/usr/local/bin/brite" && \
+        echo -e "${GREEN}Created symlink: /usr/local/bin/brite -> $bin_dir/brite${RESET}" || \
+        echo -e "${YELLOW}Could not create symlink in /usr/local/bin. This is not critical.${RESET}"
+    fi
+  else
+    echo -e "${GREEN}$bin_dir is already in your PATH.${RESET}"
+  fi
+}
+
+# Main function
+main() {
+  print_logo
+  
+  echo -e "${CYAN}Welcome to the Britescript installer!${RESET}"
+  echo -e "${CYAN}This script will install Britescript on your system.${RESET}"
+  echo -e ""
+  
+  # Check for Bun
+  check_bun
+  
+  # Detect platform
+  local platform=$(detect_platform)
+  echo -e "${BLUE}Detected platform: ${platform}${RESET}"
+  
+  # Get the latest version
+  echo -e "${BLUE}Checking for the latest version...${RESET}"
+  local version=$(get_latest_version)
+  if [ -z "$version" ]; then
+    echo -e "${RED}Failed to determine the latest version.${RESET}"
+    echo -e "${YELLOW}Please check your internet connection and try again.${RESET}"
+    echo -e "${YELLOW}If the problem persists, you can download Britescript manually from:${RESET}"
+    echo -e "${CYAN}https://github.com/britescript/britescript/releases${RESET}"
+    exit 1
+  fi
+  echo -e "${BLUE}Latest version: ${version}${RESET}"
+  
+  # Determine installation directory
+  local install_dir="$HOME/.britescript"
+  echo -e "${BLUE}Installing to: ${install_dir}${RESET}"
+  
+  # Install Britescript
+  install_britescript "$version" "$platform" "$install_dir"
+  
+  # Add to PATH
+  add_to_path "$install_dir"
+  
+  echo -e ""
+  echo -e "${GREEN}${BOLD}Installation complete!${RESET}"
+  echo -e ""
+  echo -e "${CYAN}You can now run Britescript using the 'brite' command.${RESET}"
+  echo -e "${CYAN}Try it out:${RESET}"
+  echo -e "  ${YELLOW}brite --version${RESET}"
+  echo -e "  ${YELLOW}brite --help${RESET}"
+  echo -e ""
+  echo -e "${CYAN}To create a new Britescript project:${RESET}"
+  echo -e "  ${YELLOW}brite init my-project${RESET}"
+  echo -e "  ${YELLOW}cd my-project${RESET}"
+  echo -e "  ${YELLOW}brite run${RESET}"
+  echo -e ""
+  echo -e "${CYAN}For documentation and examples, visit:${RESET}"
+  echo -e "  ${YELLOW}https://britescript.com${RESET}"
+  echo -e ""
+  echo -e "${CYAN}Enjoy using Britescript!${RESET}"
+}
+
+# Run the main function
+main

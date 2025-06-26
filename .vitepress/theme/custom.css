@@ -1,0 +1,121 @@
+:root {
+  --vp-c-brand: #ff6b6b;
+  --vp-c-brand-light: #ff8787;
+  --vp-c-brand-lighter: #ffa8a8;
+  --vp-c-brand-dark: #fa5252;
+  --vp-c-brand-darker: #e03131;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    120deg,
+    #ff6b6b 30%,
+    #ff8787
+  );
+
+  --vp-home-hero-image-background-image: linear-gradient(
+    to right,
+    rgba(255, 107, 107, 0.8),
+    rgba(255, 135, 135, 0.8)
+  );
+  --vp-home-hero-image-filter: blur(40px);
+}
+
+/* Code block styling */
+:root {
+  --vp-code-block-bg: rgba(125, 125, 125, 0.04);
+}
+
+.dark {
+  --vp-code-block-bg: rgba(0, 0, 0, 0.2);
+}
+
+/* Home page styling */
+.VPHero .image-bg {
+  opacity: 0.8;
+  transition: opacity 1s ease;
+}
+
+.VPHero .image-container:hover .image-bg {
+  opacity: 0.95;
+}
+
+/* Feature section styling */
+.VPFeature {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+.VPFeature:hover {
+  border-color: var(--vp-c-brand);
+  background-color: var(--vp-c-bg-soft);
+}
+
+/* Custom container for code examples */
+.code-example {
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  background-color: var(--vp-code-block-bg);
+  border: 1px solid var(--vp-c-divider);
+}
+
+.code-example pre {
+  margin: 0;
+}
+
+/* Custom emoji icons for features */
+.feature-emoji {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+/* Custom button styling */
+.custom-button {
+  display: inline-block;
+  border: 1px solid var(--vp-c-brand);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-weight: 600;
+  color: var(--vp-c-brand);
+  transition: background-color 0.2s, color 0.2s;
+  margin-right: 12px;
+  margin-bottom: 12px;
+}
+
+.custom-button:hover {
+  background-color: var(--vp-c-brand);
+  color: white;
+  text-decoration: none;
+}
+
+/* Logo animation */
+.VPNavBarTitle .title {
+  transition: color 0.3s ease;
+}
+
+.VPNavBarTitle:hover .title {
+  color: var(--vp-c-brand);
+}
+
+/* Custom table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+tr:nth-child(2n) {
+  background-color: var(--vp-c-bg-soft);
+}
+
+th, td {
+  padding: 12px;
+  border: 1px solid var(--vp-c-divider);
+}
+
+th {
+  background-color: var(--vp-c-bg-soft);
+  font-weight: 600;
+}

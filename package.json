@@ -1,0 +1,24 @@
+{
+  "name": "britescript-docs",
+  "version": "1.0.0",
+  "description": "Documentation for Britescript and related tools",
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "keywords": [
+    "britescript",
+    "documentation",
+    "cli",
+    "vite-config",
+    "vscode-extension"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
