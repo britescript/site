@@ -1,10 +1,20 @@
 import { defineConfig } from 'vitepress'
+import { shikiConfig } from './shiki'
 
 export default defineConfig({
   title: 'Britescript',
   description: 'Modern language that compiles to TypeScript',
   
   ignoreDeadLinks: true,
+  
+  markdown: {
+    // Map britescript to TypeScript for syntax highlighting
+    languageAlias: {
+      'britescript': 'typescript',
+      'brite': 'typescript',
+      'bs': 'typescript'
+    }
+  },
   
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
